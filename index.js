@@ -1,16 +1,4 @@
-const Queue = require("bull");
-
-const redisHost = { port: 6379, host: "127.0.0.1" };
-const queue = new Queue("queue", {
-  redis: redisHost,
-  settings: {
-    backoffStrategies: {
-      botConnector: function () {
-        return 100;
-      },
-    },
-  },
-});
+const queue = require("./queue");
 
 const CONCURRENT_JOBS = 10;
 
