@@ -7,7 +7,9 @@ module.exports = new Queue("queue", {
   settings: {
     backoffStrategies: {
       botConnector: function (attempsMade, err) {
-        return 100;
+        if (err.name === "REDIRECTING_JOB") return 100;
+
+        return -1;
       },
     },
   },

@@ -8,9 +8,16 @@ const acceptOrRedirect = () => {
   return Math.round(Math.random() * 100) > 30;
 };
 
+class WorkerError extends Error {
+  constructor(name) {
+    super();
+    this.name = name;
+  }
+}
+
 const jobRedirect = (job) => {
   console.log(`REDIRECTING JOB ID => ${job.id}\n`);
-  throw new Error("redirecting");
+  throw new WorkerError("REDIRECTING_JOB");
 };
 
 queue.process(CONCURRENT_JOBS, async (job) => {
