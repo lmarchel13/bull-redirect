@@ -7,22 +7,33 @@ const queue = new Queue("queue", { redis: redisHost });
 console.log("starting process", process.pid);
 
 const acceptOrRedirect = () => {
-  return Math.round(Math.random() * 100) > 30;
+  return Math.round(Math.random() * 100) > 50;
 };
 
 const redirect = (job) => {
-  queue.add({ ...job.data, jobRedirectId: job.id, redirect: true, redirectedFrom: process.pid });
+  console.log("REDIRECTING JOB ID =>", job.id);
+  queue.add(
+    { ...job.data, redirect: true, redirectedFrom: process.pid },
+    {
+      jobId: job.id,
+      attempts: 99999,
+      backoff: {
+        type: "botConnector",
+      },
+    }
+  );
 };
 
 queue.process((job, done) => {
-  console.log(`job id ${job.id} received at process ${process.pid}`);
+  console.log("job received", { processId: process.pid, jobId: job.id });
 
   if (acceptOrRedirect() && job.data.redirectedFrom !== process.pid) {
     const isJobRedirect = job.data && job.data.redirect;
 
     console.log("job accepted");
+
     if (isJobRedirect) {
-      console.log({ isJobRedirect, redirectJobId: job.data.jobRedirectId, from: job.data.redirectedFrom });
+      console.log({ isJobRedirect, redirectedFrom: job.data.redirectedFrom });
     }
 
     setTimeout(() => {
